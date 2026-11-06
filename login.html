@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giriş Yap - Kıbrıs İlan</title>
+    <!-- İkonlar için FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Modern Yazı Tipi: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #F27A1A;
+            --primary-dark: #d9650b;
+            --secondary: #1E293B;
+            --white: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+            --radius-lg: 24px;
+            --shadow-soft: 0 20px 50px rgba(0, 0, 0, 0.08); 
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            /* FERAHLATILMIŞ BEYAZ ARKA PLAN */
+            background: #F8FAFC; 
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* AŞAĞIDAN YUKARI SÜZÜLEN CANLI İKONLAR (UÇAN BALON ETKİSİ) */
+        .floating-bg-elements {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            overflow: hidden; z-index: 1; pointer-events: none;
+        }
+        
+        .floating-icon {
+            position: absolute; bottom: -100px; 
+            opacity: 0.15; 
+            animation: floatUp linear infinite;
+        }
+
+        /* NEGATİF DELAY EKLENDİ: Sayfa açıldığı an ekranın farklı yerlerinde hazır olmaları için */
+        .floating-icon:nth-child(1) { left: 10%; font-size: 35px; animation-duration: 25s; animation-delay: -5s; color: #EF4444; }
+        .floating-icon:nth-child(2) { left: 25%; font-size: 28px; animation-duration: 32s; animation-delay: -18s; color: #3B82F6; }
+        .floating-icon:nth-child(3) { left: 40%; font-size: 42px; animation-duration: 28s; animation-delay: -8s; color: #10B981; }
+        .floating-icon:nth-child(4) { left: 65%; font-size: 32px; animation-duration: 35s; animation-delay: -24s; color: #F59E0B; }
+        .floating-icon:nth-child(5) { left: 80%; font-size: 38px; animation-duration: 22s; animation-delay: -12s; color: #EC4899; }
+        .floating-icon:nth-child(6) { left: 55%; font-size: 26px; animation-duration: 30s; animation-delay: -27s; color: #8B5CF6; }
+        .floating-icon:nth-child(7) { left: 18%; font-size: 30px; animation-duration: 26s; animation-delay: -15s; color: #F43F5E; }
+        .floating-icon:nth-child(8) { left: 88%; font-size: 24px; animation-duration: 24s; animation-delay: -2s; color: #06B6D4; }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.15; }
+            90% { opacity: 0.15; }
+            100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* ŞEFFAF AÇILIŞ (SPLASH) EKRANI (İkonların görünmesi için) */
+        .splash-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            background: transparent;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 9999; color: var(--secondary);
+            transition: opacity 0.6s ease-in-out, visibility 0.6s ease-in-out;
+        }
+        .splash-screen.hidden { opacity: 0; visibility: hidden; }
+        
+        .splash-logo {
+            font-size: 46px; font-weight: 800; display: flex; align-items: center; gap: 12px;
+            animation: pulseLogo 2s infinite ease-in-out;
+        }
+        .splash-logo i { color: var(--primary); font-size: 42px; }
+        .splash-logo span { color: var(--primary); }
+        .splash-tagline { margin-top: 12px; font-size: 15px; color: var(--text-muted); font-weight: 500; letter-spacing: 1px; }
+        
+        .splash-loader {
+            margin-top: 40px; width: 60px; height: 5px; background: var(--border); border-radius: 10px; overflow: hidden; position: relative;
+        }
+        .splash-loader::after {
+            content: ''; position: absolute; left: -30px; top: 0; width: 30px; height: 100%;
+            background: var(--primary); border-radius: 10px; animation: slideLoader 1.5s infinite ease-in-out;
+            box-shadow: 0 0 10px rgba(242, 122, 26, 0.5);
+        }
+
+        @keyframes pulseLogo { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        @keyframes slideLoader { 0% { left: -30px; width: 30px; } 50% { left: 15px; width: 40px; } 100% { left: 60px; width: 30px; } }
+
+        /* GİRİŞ KARTI */
+        .login-card {
+            background: rgba(255, 255, 255, 0.90);
+            backdrop-filter: blur(20px);
+            width: 100%; max-width: 440px;
+            padding: 32px 28px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+            z-index: 10; display: flex; flex-direction: column; gap: 20px;
+            border: 1px solid rgba(255, 255, 255, 1);
+            max-height: 95vh; overflow-y: auto;
+            
+            opacity: 0; 
+            transform: translateY(30px);
+            pointer-events: none;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .login-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .login-card::-webkit-scrollbar { width: 0; }
+
+        .login-header { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .login-logo { font-size: 28px; font-weight: 800; color: var(--secondary); display: flex; align-items: center; gap: 8px; }
+        .login-logo span { color: var(--primary); }
+        .login-logo i { color: var(--primary); font-size: 24px; }
+        .login-subtitle { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+
+        /* SEKME GEÇİŞLERİ */
+        .auth-tabs { display: flex; background: #F1F5F9; padding: 4px; border-radius: 14px; gap: 4px; }
+        .auth-tab {
+            flex: 1; background: transparent; border: none; padding: 12px; font-size: 13px;
+            font-weight: 700; color: var(--text-muted); cursor: pointer; border-radius: 12px; transition: 0.3s;
+        }
+        .auth-tab.active { background: var(--white); color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+
+        .auth-form { display: flex; flex-direction: column; gap: 14px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 12px; font-weight: 700; color: var(--secondary); padding-left: 2px; }
+
+        .input-with-icon { position: relative; display: flex; align-items: center; }
+        .input-with-icon i { position: absolute; left: 16px; color: #94A3B8; font-size: 14px; transition: 0.2s; }
+        
+        .form-input {
+            width: 100%; padding: 14px 14px 14px 44px; border: 1.5px solid var(--border);
+            border-radius: 14px; font-size: 14px; outline: none; background: #F8FAFC; transition: all 0.3s ease; color: var(--text-main);
+        }
+        
+        .form-input:focus {
+            border-color: var(--primary); background: var(--white);
+            box-shadow: 0 0 0 4px rgba(242, 122, 26, 0.12);
+        }
+        .form-input:focus + i, .input-with-icon:focus-within i { color: var(--primary); }
+
+        .btn-submit {
+            background: var(--primary); color: var(--white); border: none; padding: 14px;
+            border-radius: 14px; font-weight: 800; font-size: 14px; cursor: pointer;
+            transition: all 0.3s ease; box-shadow: 0 8px 20px rgba(242, 122, 26, 0.25); margin-top: 4px;
+        }
+        .btn-submit:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(242, 122, 26, 0.35); }
+        .btn-submit:disabled { background: #94A3B8; cursor: not-allowed; box-shadow: none; transform: none; }
+
+        .social-login-divider {
+            display: flex; align-items: center; text-align: center; color: var(--text-muted);
+            font-size: 11px; font-weight: 700; margin: 8px 0;
+        }
+        .social-login-divider::before, .social-login-divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border); }
+        .social-login-divider::before { margin-right: 12px; }
+        .social-login-divider::after { margin-left: 12px; }
+
+        .social-btns-stack { display: flex; flex-direction: column; gap: 10px; }
+        .btn-social {
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            padding: 12px; border-radius: 14px; font-size: 13px; font-weight: 700;
+            border: 1.5px solid var(--border); background: var(--white); color: var(--secondary);
+            cursor: pointer; transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.02); width: 100%;
+        }
+        .btn-social:hover { background: #F8FAFC; border-color: #CBD5E1; transform: translateY(-1px); }
+        .btn-social.google i { color: #EA4335; font-size: 18px; }
+        .btn-social.facebook i { color: #1877F2; font-size: 18px; }
+
+        .error-message { background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; padding: 10px; border-radius: 12px; font-size: 12px; font-weight: 600; text-align: center; display: none; }
+        .success-message { background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; padding: 10px; border-radius: 12px; font-size: 12px; font-weight: 600; text-align: center; display: none; }
+    </style>
+</head>
+<body>
+
+    <!-- AŞAĞIDAN YUKARI SÜZÜLEN CANLI İKONLAR (Her iki ekranda da aktif) -->
+    <div class="floating-bg-elements">
+        <i class="fa-solid fa-heart floating-icon"></i>
+        <i class="fa-solid fa-cart-shopping floating-icon"></i>
+        <i class="fa-solid fa-house-chimney floating-icon"></i>
+        <i class="fa-solid fa-car floating-icon"></i>
+        <i class="fa-solid fa-spray-can-sparkles floating-icon"></i>
+        <i class="fa-solid fa-bag-shopping floating-icon"></i>
+        <i class="fa-solid fa-heart floating-icon"></i>
+        <i class="fa-solid fa-key floating-icon"></i>
+    </div>
+
+    <!-- BEMBEYAZ YENİ AÇILIŞ (SPLASH) EKRANI -->
+    <div id="splashScreen" class="splash-screen">
+        <div class="splash-logo">
+            <i class="fa-solid fa-location-dot"></i>
+            Kıbrıs<span>İlan</span>
+        </div>
+        <div class="splash-tagline">KKTC'nin Dijital Vitrini</div>
+        <div class="splash-loader"></div>
+    </div>
+
+    <!-- GİRİŞ KARTI (Başlangıçta gizli, sonradan süzülerek gelir) -->
+    <div class="login-card" id="loginCard">
+        <div class="login-header">
+            <div class="login-logo">
+                <i class="fa-solid fa-location-dot"></i>
+                Kıbrıs<span>İlan</span>
+            </div>
+            <div class="login-subtitle">KKTC'nin En Güvenli Alışveriş Platformu</div>
+        </div>
+
+        <div class="auth-tabs">
+            <button class="auth-tab active" id="tabLoginBtn" onclick="switchTab('login')">Giriş Yap</button>
+            <button class="auth-tab" id="tabRegisterBtn" onclick="switchTab('register')">Kayıt Ol</button>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+
+        <!-- GİRİŞ YAP FORMU -->
+        <form class="auth-form" id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label>E-Posta Adresi</label>
+                <div class="input-with-icon">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" id="loginEmail" class="form-input" required placeholder="ornek@mail.com">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Şifre</label>
+                <div class="input-with-icon">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="loginPassword" class="form-input" required placeholder="••••••••">
+                </div>
+            </div>
+            <button type="submit" class="btn-submit">Giriş Yap</button>
+            <div style="text-align:center; font-size:12px; margin-top:2px;">
+                <a href="#" onclick="handlePasswordReset(); return false;" style="color:var(--text-muted); font-weight:700; text-decoration:none; transition:0.2s;">Şifremi Unuttum</a>
+            </div>
+
+            <div class="social-login-divider">VEYA SOSYAL HESAP İLE</div>
+            <div class="social-btns-stack">
+                <button type="button" class="btn-social google" onclick="socialLogin('Google')"><i class="fa-brands fa-google"></i> Google ile Giriş Yap</button>
+                <button type="button" class="btn-social facebook" onclick="socialLogin('Facebook')"><i class="fa-brands fa-facebook"></i> Facebook ile Giriş Yap</button>
+            </div>
+        </form>
+
+        <!-- KAYIT OL FORMU -->
+        <form class="auth-form" id="registerForm" style="display: none;" onsubmit="handleRegister(event)">
+            <div class="form-group">
+                <label>Ad Soyad / Mağaza Adı</label>
+                <div class="input-with-icon">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" id="regName" class="form-input" required placeholder="Adınız Soyadınız">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>E-Posta Adresi</label>
+                <div class="input-with-icon">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" id="regEmail" class="form-input" required placeholder="ornek@mail.com">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Şifre</label>
+                <div class="input-with-icon">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="regPassword" class="form-input" required placeholder="En az 6 karakter">
+                </div>
+            </div>
+            <button type="submit" class="btn-submit">Hesap Oluştur</button>
+
+            <div class="social-login-divider">VEYA SOSYAL HESAP İLE</div>
+            <div class="social-btns-stack">
+                <button type="button" class="btn-social google" onclick="socialLogin('Google')"><i class="fa-brands fa-google"></i> Google ile Kayıt Ol</button>
+                <button type="button" class="btn-social facebook" onclick="socialLogin('Facebook')"><i class="fa-brands fa-facebook"></i> Facebook ile Kayıt Ol</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- FIREBASE AUTH BAĞLANTISI VE İŞLEMLERİ -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, signOut, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAyYty49vBvMFPlgVCtruA2SdTF4RXqgGM",
+            authDomain: "kibris-ilan-2b904.firebaseapp.com",
+            projectId: "kibris-ilan-2b904",
+            storageBucket: "kibris-ilan-2b904.firebasestorage.app",
+            messagingSenderId: "747038151476",
+            appId: "1:747038151476:web:005e2768dec5e40054cb61",
+            measurementId: "G-JH07N4V03G"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // AÇILIŞ EKRANINI (SPLASH) GİZLEYİP GİRİŞ KARTINI GETİRME
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const splash = document.getElementById('splashScreen');
+                const loginCard = document.getElementById('loginCard');
+                if (splash) {
+                    splash.classList.add('hidden');
+                    if(loginCard) loginCard.classList.add('visible'); 
+                    setTimeout(() => { splash.style.display = 'none'; }, 800); 
+                }
+            }, 2500); 
+        });
+
+        window.switchTab = function(tab) {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const tabLoginBtn = document.getElementById('tabLoginBtn');
+            const tabRegisterBtn = document.getElementById('tabRegisterBtn');
+            const errBox = document.getElementById('errorMessage');
+            const succBox = document.getElementById('successMessage');
+            
+            errBox.style.display = 'none';
+            succBox.style.display = 'none';
+
+            if(tab === 'login') {
+                loginForm.style.display = 'flex';
+                registerForm.style.display = 'none';
+                tabLoginBtn.classList.add('active');
+                tabRegisterBtn.classList.remove('active');
+            } else {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'flex';
+                tabRegisterBtn.classList.add('active');
+                tabLoginBtn.classList.remove('active');
+            }
+        }
+
+        window.handleLogin = async function(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Giriş Yapılıyor...';
+            
+            const email = document.getElementById('loginEmail').value.trim();
+            const pass = document.getElementById('loginPassword').value.trim();
+            const errBox = document.getElementById('errorMessage');
+            const succBox = document.getElementById('successMessage');
+            errBox.style.display = 'none';
+            succBox.style.display = 'none';
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+                
+                if (!userCredential.user.emailVerified) {
+                    await signOut(auth); 
+                    errBox.innerText = "Giriş başarısız! Lütfen e-posta adresinize gelen doğrulama linkine tıklayarak hesabınızı onaylayın.";
+                    errBox.style.display = 'block';
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                    return;
+                }
+
+                window.location.href = 'index.html';
+            } catch(error) {
+                errBox.innerText = "Giriş başarısız: E-posta veya şifre hatalı.";
+                errBox.style.display = 'block';
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        window.handleRegister = async function(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Hesap Oluşturuluyor...';
+
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const pass = document.getElementById('regPassword').value.trim();
+            const errBox = document.getElementById('errorMessage');
+            const succBox = document.getElementById('successMessage');
+            errBox.style.display = 'none';
+            succBox.style.display = 'none';
+
+            try {
+                const userCred = await createUserWithEmailAndPassword(auth, email, pass);
+                
+                await setDoc(doc(db, "users", userCred.user.uid), {
+                    fullName: name,
+                    email: email,
+                    phone: "0533 000 00 00",
+                    avatarUrl: "",
+                    createdAt: Date.now()
+                });
+
+                await sendEmailVerification(userCred.user);
+                await signOut(auth);
+                
+                window.switchTab('login');
+                document.getElementById('loginEmail').value = email;
+                succBox.innerText = "Kayıt başarılı! Giriş yapabilmek için lütfen e-posta adresinize gönderilen linke tıklayarak hesabınızı doğrulayın.";
+                succBox.style.display = 'block';
+
+            } catch(error) {
+                let errorMsg = "Kayıt hatası: " + error.message;
+                if (error.code === 'auth/email-already-in-use') errorMsg = "Bu e-posta adresi zaten kullanılıyor.";
+                if (error.code === 'auth/weak-password') errorMsg = "Şifreniz çok zayıf. En az 6 karakter kullanın.";
+                errBox.innerText = errorMsg;
+                errBox.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        window.handlePasswordReset = async function() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const errBox = document.getElementById('errorMessage');
+            const succBox = document.getElementById('successMessage');
+            errBox.style.display = 'none';
+            succBox.style.display = 'none';
+
+            if (!email) {
+                errBox.innerText = "Lütfen önce şifresini unuttuğunuz e-posta adresini 'E-Posta Adresi' alanına yazın.";
+                errBox.style.display = 'block';
+                return;
+            }
+
+            try {
+                await sendPasswordResetEmail(auth, email);
+                succBox.innerText = "Şifre sıfırlama linki e-posta adresinize gönderildi. Lütfen gelen kutunuzu kontrol edin.";
+                succBox.style.display = 'block';
+            } catch (error) {
+                errBox.innerText = "Şifre sıfırlama hatası: " + error.message;
+                errBox.style.display = 'block';
+            }
+        }
+
+        window.socialLogin = async function(providerName) {
+            const errBox = document.getElementById('errorMessage');
+            const succBox = document.getElementById('successMessage');
+            errBox.style.display = 'none';
+            succBox.style.display = 'none';
+            
+            let provider;
+            if (providerName === 'Google') {
+                provider = new GoogleAuthProvider();
+            } else if (providerName === 'Facebook') {
+                provider = new FacebookAuthProvider();
+            }
+
+            try {
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+                
+                const userDocRef = doc(db, "users", user.uid);
+                const userSnap = await getDoc(userDocRef);
+                if (!userSnap.exists()) {
+                    await setDoc(userDocRef, {
+                        fullName: user.displayName || user.email.split('@')[0],
+                        email: user.email,
+                        phone: user.phoneNumber || "0533 000 00 00",
+                        avatarUrl: user.photoURL || "",
+                        createdAt: Date.now()
+                    });
+                }
+
+                window.location.href = 'index.html';
+            } catch(error) {
+                errBox.innerText = `${providerName} ile giriş hatası: ` + error.message;
+                errBox.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
